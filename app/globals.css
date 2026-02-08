@@ -56,6 +56,82 @@ body.is-dragging-rocket {
   cursor: ns-resize;
 }
 
+body.is-booting {
+  overflow: hidden;
+}
+
+.boot-sequence {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  background: #050505;
+  padding: clamp(16px, 4vw, 40px);
+  opacity: 1;
+  transition: opacity 0.28s ease;
+}
+
+.boot-sequence.is-fading {
+  opacity: 0;
+}
+
+.boot-sequence-window {
+  width: min(960px, 100%);
+  border: 1px solid rgba(191, 211, 255, 0.3);
+  border-radius: 14px;
+  background: #0d0d0d;
+  box-shadow:
+    0 0 0 0.5px rgba(196, 214, 255, 0.22),
+    0 20px 40px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 0.5px rgba(205, 223, 255, 0.08);
+  overflow: hidden;
+}
+
+.boot-sequence-title {
+  margin: 0;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  color: #e5e5e5;
+  background: #1b1b1b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.boot-sequence-body {
+  padding: clamp(18px, 3.2vw, 30px);
+  min-height: clamp(180px, 32vh, 280px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.7rem;
+}
+
+.boot-sequence-line {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6ch;
+  color: #ffffff;
+  font-size: clamp(1.15rem, 2.3vw, 1.6rem);
+}
+
+.boot-sequence-prompt {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.boot-sequence-cursor {
+  width: 0.55ch;
+  height: 1.05em;
+  background: #ffffff;
+  display: inline-block;
+  animation: cursor-blink 0.9s step-end infinite;
+}
+
 
 body {
   font-family: "VT323", "Courier New", monospace;

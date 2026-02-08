@@ -100,6 +100,7 @@ const musicTracks = [
       "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/d5/fb/70/d5fb7086-9fbe-feca-215e-da448bcf4596/197189862939.jpg/600x600bb.jpg",
   },
 ];
+const bootCommands = ["cd andy_portfolio", "code .", "npm run dev"];
 function FadeIn({
   children,
   delay = 0,
@@ -175,6 +176,10 @@ function Typewriter({
   const ref = useRef<HTMLElement | null>(null);
   const measureRef = useRef<HTMLSpanElement | null>(null);
   const [active, setActive] = useState(prefersReducedMotion || !animate);
+  const [bootReady, setBootReady] = useState(() => {
+    if (typeof document === "undefined") return false;
+    return document.documentElement.classList.contains("boot-ready");
+  });
   const [isTyping, setIsTyping] = useState(false);
   const [reservedHeight, setReservedHeight] = useState(0);
   const [display, setDisplay] = useState(
@@ -190,10 +195,25 @@ function Typewriter({
     componentTag === "h5" ||
     componentTag === "h6";
   const shouldShowCursor = animate || showCursor || isHeading;
-  const shouldType = animate && !prefersReducedMotion;
+  const shouldType = animate && !prefersReducedMotion && bootReady;
   const reserveSpace = reserve && shouldType && componentTag !== "span";
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onBootReady = () => {
+      setBootReady(true);
+    };
+    window.addEventListener("boot-ready", onBootReady as EventListener);
+    return () => {
+      window.removeEventListener("boot-ready", onBootReady as EventListener);
+    };
+  }, []);
+  useEffect(() => {
     if (!shouldType) {
+      if (animate && !bootReady) {
+        setIsTyping(false);
+        setDisplay("");
+        return;
+      }
       setActive(true);
       return;
     }
@@ -275,9 +295,14 @@ function Typewriter({
     }
 
     return cleanup;
-  }, [shouldType, componentTag]);
+  }, [shouldType, componentTag, animate, bootReady]);
   useEffect(() => {
     if (!shouldType) {
+      if (animate && !bootReady) {
+        setIsTyping(false);
+        setDisplay("");
+        return;
+      }
       setIsTyping(false);
       setDisplay(text);
       return;
@@ -314,7 +339,7 @@ function Typewriter({
       setIsTyping(false);
       if (timer) window.clearTimeout(timer);
     };
-  }, [active, shouldType, text, speed, delayMs]);
+  }, [active, shouldType, text, speed, delayMs, animate, bootReady]);
   useEffect(() => {
     if (!reserveSpace) {
       setReservedHeight(0);
@@ -365,6 +390,12 @@ function Typewriter({
 }
 export default function Home() {
   const [coords, setCoords] = useState("X:000 Y:000");
+  const [bootLines, setBootLines] = useState(() =>
+    bootCommands.map(() => "")
+  );
+  const [bootCursorLine, setBootCursorLine] = useState(0);
+  const [bootFading, setBootFading] = useState(false);
+  const [bootVisible, setBootVisible] = useState(true);
   const progressRef = useRef(0);
   const scrollIndicatorRef = useRef<HTMLDivElement | null>(null);
   const fuelFillRef = useRef<HTMLSpanElement | null>(null);
@@ -439,11 +470,73 @@ export default function Home() {
   };
   useEffect(() => {
     if (typeof window === "undefined") return;
+    let cancelled = false;
+    const timers: number[] = [];
+
+    const wait = (ms: number) =>
+      new Promise<void>((resolve) => {
+        const timer = window.setTimeout(resolve, ms);
+        timers.push(timer);
+      });
+
+    const typeLine = async (lineIndex: number, content: string) => {
+      setBootCursorLine(lineIndex);
+      for (let i = 1; i <= content.length; i += 1) {
+        if (cancelled) return;
+        setBootLines((prev) => {
+          const next = [...prev];
+          next[lineIndex] = content.slice(0, i);
+          return next;
+        });
+        await wait(50);
+      }
+    };
+
+    const runBootSequence = async () => {
+      await wait(240);
+      for (let i = 0; i < bootCommands.length; i += 1) {
+        if (cancelled) return;
+        await typeLine(i, bootCommands[i]);
+        await wait(240);
+      }
+      if (cancelled) return;
+      setBootCursorLine(-1);
+      await wait(260);
+      setBootFading(true);
+      await wait(320);
+      if (cancelled) return;
+      document.documentElement.classList.add("boot-ready");
+      window.dispatchEvent(new Event("boot-ready"));
+      setBootVisible(false);
+    };
+
+    runBootSequence();
+
+    return () => {
+      cancelled = true;
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
+  }, []);
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (bootVisible) {
+      document.body.classList.add("is-booting");
+      return () => {
+        document.body.classList.remove("is-booting");
+      };
+    }
+    document.body.classList.remove("is-booting");
+    return;
+  }, [bootVisible]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
     document.documentElement.classList.add("app-hydrated");
+    document.documentElement.classList.remove("boot-ready");
     window.history.scrollRestoration = "manual";
     window.scrollTo(0, 0);
     return () => {
       document.documentElement.classList.remove("app-hydrated");
+      document.documentElement.classList.remove("boot-ready");
     };
   }, []);
   useEffect(() => {
@@ -662,6 +755,25 @@ export default function Home() {
     };
   }, []);
   return (
+    <>
+      {bootVisible ? (
+        <div className={`boot-sequence ${bootFading ? "is-fading" : ""}`} aria-live="polite">
+          <div className="boot-sequence-window">
+            <p className="boot-sequence-title">Andy Do - zsh - boot</p>
+            <div className="boot-sequence-body">
+              {bootCommands.map((command, index) => (
+                <p className="boot-sequence-line" key={command}>
+                  <span className="boot-sequence-prompt">$</span>
+                  <span>{bootLines[index]}</span>
+                  {bootCursorLine === index ? (
+                    <span className="boot-sequence-cursor" aria-hidden="true" />
+                  ) : null}
+                </p>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
     <main className="relative space-bg">
       <div className="space-layer" aria-hidden="true">
         <div className="grid-lines" />
@@ -1117,5 +1229,6 @@ export default function Home() {
         </section>
       </div>
     </main>
+    </>
   );
 }
