@@ -1177,31 +1177,33 @@ html.app-hydrated .typewriter-text {
   --tilt-amount-y: -3.8deg;
   --tilt-strength: 1;
   transform:
-    perspective(1700px)
+    perspective(2100px)
     rotateX(calc(var(--tilt-y, 0) * var(--tilt-amount-y) * var(--tilt-strength)))
     rotateY(calc(var(--tilt-x, 0) * var(--tilt-amount-x) * var(--tilt-strength)))
-    translateZ(0);
+    translateZ(0)
+    scale(1);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   transform-style: preserve-3d;
   transform-origin: center center;
-  transition: transform 0.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .window-tilt-small {
-  --tilt-strength: 1.18;
+  --tilt-strength: 1.08;
 }
 
 .window-tilt-large {
-  --tilt-strength: 0.92;
+  --tilt-strength: 0.84;
 }
 
 .window-tilt:not(.is-tilting) {
   transform:
-    perspective(1700px)
+    perspective(2100px)
     rotateX(0deg)
     rotateY(0deg)
-    translateZ(0);
+    translateZ(0)
+    scale(1);
 }
 
 .text-accent-cyan {

@@ -5,7 +5,7 @@ const navItems = [
   { label: "welcome", href: "#welcome" },
   { label: "bio", href: "#bio" },
   { label: "experience", href: "#experience" },
-  { label: "skills", href: "#technical-skills" },
+  { label: "skillz", href: "#technical-skills" },
   { label: "projects", href: "#projects" },
   { label: "music", href: "#music" },
   { label: "contact", href: "#contact" },
@@ -159,7 +159,7 @@ function Typewriter({
   delayMs = 0,
   cursorOffset = 8,
   persistCursor = false,
-  reserve = true,
+  reserve = false,
 }: {
   text: string;
   as?: React.ElementType;
@@ -621,6 +621,14 @@ export default function Home() {
         const smoothing = state.active ? 0.19 : 0.15;
         state.currentX += (state.targetX - state.currentX) * smoothing;
         state.currentY += (state.targetY - state.currentY) * smoothing;
+        if (!Number.isFinite(state.currentX) || !Number.isFinite(state.currentY)) {
+          state.currentX = 0;
+          state.currentY = 0;
+          state.targetX = 0;
+          state.targetY = 0;
+        }
+        state.currentX = clamp(state.currentX, -0.78, 0.78);
+        state.currentY = clamp(state.currentY, -0.78, 0.78);
         card.style.setProperty("--tilt-x", state.currentX.toFixed(3));
         card.style.setProperty("--tilt-y", state.currentY.toFixed(3));
         const stillMoving =
@@ -979,7 +987,7 @@ export default function Home() {
         <section id="experience" className="container-shell py-14 sm:py-20">
           <FadeIn>
             <Typewriter
-              text="Experience"
+              text="experience"
               className="text-3xl sm:text-4xl font-semibold text-accent-cyan"
               animate
               delayMs={135}
@@ -1043,7 +1051,7 @@ export default function Home() {
         <section id="technical-skills" className="container-shell py-14 sm:py-20">
           <FadeIn>
             <Typewriter
-              text="Technical Skills"
+              text="skillz"
               className="text-3xl sm:text-4xl font-semibold text-accent-amber"
               animate
               delayMs={145}
@@ -1081,7 +1089,7 @@ export default function Home() {
         <section id="projects" className="container-shell py-14 sm:py-20">
           <FadeIn>
             <Typewriter
-              text="Projects (need more energy drinks for hack-a-thons)"
+              text="projects (need more energy drinks for hack-a-thons)"
               className="text-3xl sm:text-4xl font-semibold text-accent-red"
               animate
               delayMs={150}
@@ -1157,7 +1165,7 @@ export default function Home() {
         <section id="music" className="container-shell py-14 sm:py-20">
           <FadeIn>
             <Typewriter
-              text="Music (my personal top 5)"
+              text="music (my personal top 5)"
               className="text-3xl sm:text-4xl font-semibold text-accent-violet"
               animate
               delayMs={300}
@@ -1198,7 +1206,7 @@ export default function Home() {
         <section id="contact" className="container-shell pt-14 pb-6 sm:pt-20 sm:pb-8">
           <FadeIn>
             <Typewriter
-              text="Contact"
+              text="reach out to me!"
               className="text-3xl sm:text-4xl font-semibold text-accent-blue"
               animate
               delayMs={450}
