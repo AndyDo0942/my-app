@@ -16,5 +16,7 @@ export default function nextConfig(phase) {
     ...baseConfig,
     // Keep dev artifacts isolated so build/start cannot corrupt active dev chunks.
     distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next",
+    // Production deploy target is static assets (`out/`) for Wrangler assets deploy.
+    output: phase === PHASE_DEVELOPMENT_SERVER ? undefined : "export",
   };
 }
