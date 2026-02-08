@@ -1089,7 +1089,7 @@ export default function Home() {
         <section id="projects" className="container-shell py-14 sm:py-20">
           <FadeIn>
             <Typewriter
-              text="projects (need more energy drinks for hack-a-thons)"
+              text="projects"
               className="text-3xl sm:text-4xl font-semibold text-accent-red"
               animate
               delayMs={150}
